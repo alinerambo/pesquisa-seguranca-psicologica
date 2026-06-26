@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Resultados — Segurança Psicológica · MBA Gestão de Equipes de Alto Desempenho 2025</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #f0f4f8;
+      color: #1a1a2e;
+      padding: 32px 16px 64px;
+      min-height: 100vh;
+    }
+    .container { max-width: 680px; margin: 0 auto; }
+
+    .header { text-align: center; margin-bottom: 32px; }
+    .header .tag {
+      display: inline-block; background: #e8f0fe; color: #4a9eff;
+      font-size: 0.72rem; font-weight: 700; letter-spacing: 0.08em;
+      text-transform: uppercase; padding: 4px 12px; border-radius: 99px; margin-bottom: 14px;
+    }
+    .header h1 { font-size: 1.5rem; font-weight: 800; margin-bottom: 6px; line-height: 1.3; }
+    .header .subtitle { font-size: 1rem; font-weight: 600; color: #4a9eff; margin-bottom: 10px; }
+    .header p { font-size: 0.85rem; color: #777; }
+
+    /* Loading */
+    #loading {
+      text-align: center; padding: 60px 20px;
+      background: white; border-radius: 14px; border: 1px solid #e2e6ea;
+    }
+    .spinner {
+      width: 40px; height: 40px; border: 4px solid #e2e6ea;
+      border-top-color: #4a9eff; border-radius: 50%;
+      animation: spin 0.8s linear infinite; margin: 0 auto 16px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    #loading p { font-size: 0.9rem; color: #888; }
+
+    /* Error */
+    #error-screen { display: none; text-align: center; padding: 48px 20px; background: white; border-radius: 14px; border: 2px solid #ff6b6b; }
+    #error-screen h2 { color: #c0392b; margin-bottom: 8px; }
+    #error-screen p { color: #555; font-size: 0.88rem; line-height: 1.6; }
+
+    /* No data */
+    #no-data { display: none; text-align: center; padding: 48px 20px; background: white; border-radius: 14px; border: 1px solid #e2e6ea; }
+    #no-data h2 { font-size: 1.1rem; color: #888; margin-bottom: 8px; }
+    #no-data p { color: #aaa; font-size: 0.85rem; }
+
+    /* Dashboard */
+    #dashboard { display: none; animation: fadeIn 0.4s ease; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* Hero score */
+    .result-hero {
+      border-radius: 16px; padding: 32px 28px 26px;
+      text-align: center; margin-bottom: 16px; border: 2px solid;
+    }
+    .eyebrow { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; opacity: 0.7; margin-bottom: 10px; }
+    .score-big { font-size: 4rem; font-weight: 900; line-height: 1; margin-bottom: 2px; }
+    .score-max { font-size: 0.85rem; opacity: 0.65; margin-bottom: 6px; }
+    .respondents-badge {
+      display: inline-block; background: rgba(0,0,0,0.08);
+      border-radius: 99px; padding: 4px 14px; font-size: 0.78rem; font-weight: 600;
+      margin-bottom: 16px;
+    }
+    .result-label { font-size: 1.2rem; font-weight: 800; margin-bottom: 12px; }
+    .result-desc { font-size: 0.88rem; line-height: 1.7; opacity: 0.85; text-align: left; }
+
+    .level-1 { background: #fff5f5; border-color: #ff6b6b; color: #b83232; }
+    .level-2 { background: #fff9f0; border-color: #ffa94d; color: #b36a1a; }
+    .level-3 { background: #fffdf0; border-color: #f5c518; color: #7a6010; }
+    .level-4 { background: #f0faf0; border-color: #51c261; color: #226622; }
+    .level-5 { background: #f0f6ff; border-color: #4a9eff; color: #1a52a8; }
+
+    /* Section blocks */
+    .section-block {
+      background: white; border: 1px solid #e2e6ea;
+      border-radius: 14px; padding: 22px 22px 18px; margin-bottom: 14px;
+    }
+    .section-title {
+      font-size: 0.72rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.07em; color: #aaa; margin-bottom: 18px;
+    }
+
+    /* Bars */
+    .bar-row { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+    .bar-label { font-size: 0.79rem; color: #444; flex: 0 0 190px; line-height: 1.35; }
+    .bar-track { flex: 1; height: 10px; background: #eef0f3; border-radius: 99px; overflow: hidden; }
+    .bar-fill { height: 100%; border-radius: 99px; transition: width 0.7s cubic-bezier(.4,0,.2,1); }
+    .bar-score { font-size: 0.82rem; font-weight: 700; flex: 0 0 28px; text-align: right; }
+
+    /* Distribution */
+    .dist-row { margin-bottom: 14px; }
+    .dist-label { font-size: 0.78rem; color: #555; margin-bottom: 6px; line-height: 1.3; }
+    .dist-bars { display: flex; gap: 4px; align-items: flex-end; height: 48px; }
+    .dist-bar-wrap { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; }
+    .dist-bar {
+      width: 100%; border-radius: 4px 4px 0 0;
+      transition: height 0.6s cubic-bezier(.4,0,.2,1);
+    }
+    .dist-bar-label { font-size: 0.65rem; color: #aaa; }
+    .dist-pct { font-size: 0.7rem; font-weight: 700; }
+
+    /* Meter */
+    .meter-track {
+      height: 14px;
+      background: linear-gradient(to right, #ff6b6b, #ffa94d, #f5c518, #51c261, #4a9eff);
+      border-radius: 99px; position: relative; margin: 12px 0 8px;
+    }
+    .meter-needle {
+      position: absolute; top: -6px; width: 4px; height: 26px;
+      background: #1a1a2e; border-radius: 3px; transform: translateX(-50%);
+      transition: left 0.9s cubic-bezier(.4,0,.2,1);
+      box-shadow: 0 1px 4px rgba(0,0,0,0.25);
+    }
+    .meter-labels { display: flex; justify-content: space-between; font-size: 0.68rem; color: #aaa; }
+
+    /* Edmondson note */
+    .edmondson-note {
+      background: #f8f9fb; border-left: 3px solid #4a9eff;
+      border-radius: 0 10px 10px 0; padding: 14px 16px;
+      font-size: 0.82rem; color: #444; line-height: 1.65;
+    }
+    .edmondson-note strong { color: #1a1a2e; }
+
+    /* Actions */
+    .action-row { display: flex; gap: 10px; margin-top: 8px; }
+    .btn-primary {
+      flex: 1; padding: 13px; background: #4a9eff; color: white;
+      border: none; border-radius: 12px; font-size: 0.9rem; font-weight: 700;
+      cursor: pointer; text-align: center; text-decoration: none;
+      transition: background 0.2s; display: block;
+    }
+    .btn-primary:hover { background: #2e86ef; }
+    .btn-outline {
+      flex: 1; padding: 13px; background: transparent; color: #4a9eff;
+      border: 2px solid #4a9eff; border-radius: 12px; font-size: 0.9rem; font-weight: 700;
+      cursor: pointer; text-align: center; transition: all 0.2s;
+    }
+    .btn-outline:hover { background: #eef5ff; }
+
+    .footer { text-align: center; margin-top: 40px; font-size: 0.75rem; color: #bbb; line-height: 1.7; }
+
+    @media (max-width: 500px) {
+      .header h1 { font-size: 1.2rem; }
+      .bar-label { flex: 0 0 120px; font-size: 0.72rem; }
+      .action-row { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <div class="header">
+    <div class="tag">Resultado do Time · Tempo real</div>
+    <h1>Segurança Psicológica — Diagnóstico Coletivo</h1>
+    <div class="subtitle">MBA | Gestão de Equipes de Alto Desempenho 2025</div>
+    <p>Resultado consolidado com base nas respostas de todos os participantes</p>
+  </div>
+
+  <div id="loading">
+    <div class="spinner"></div>
+    <p>Carregando respostas do time...</p>
+  </div>
+
+  <div id="error-screen">
+    <h2>Não foi possível carregar os dados</h2>
+    <p>Verifique se a URL do Apps Script está corretamente configurada nos arquivos HTML.<br>Tente recarregar a página.</p>
+  </div>
+
+  <div id="no-data">
+    <h2>Nenhuma resposta ainda</h2>
+    <p>Compartilhe o link do formulário com o time para começar a coletar respostas.</p>
+  </div>
+
+  <div id="dashboard"></div>
+
+  <div class="footer">
+    Baseado no instrumento de Amy Edmondson (1999) — <em>Psychological Safety and Learning Behavior in Work Teams</em>
+  </div>
+</div>
+
+<script>
+  // ⚠️ COLE AQUI A MESMA URL DO SEU GOOGLE APPS SCRIPT
+  const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxpJFy29Kkm8OdQ4LhEunKxhcLwujTFI0kVC53q19H9KbY3qx89sxrBdjNkDn9p3qCzTQ/exec';
+
+  const barColors = ['#ff6b6b', '#ffa94d', '#f5c518', '#51c261', '#4a9eff'];
+
+  const questions = [
+    'Erros não usados contra você',
+    'Discussão de temas difíceis',
+    'Aceitação das diferenças',
+    'Segurança para correr riscos',
+    'Facilidade de pedir ajuda',
+    'Não sabotagem de esforços',
+    'Valorização de habilidades'
+  ];
+
+  const levels = [
+    { max: 1.99, cls: 'level-1', label: '⚠️ Segurança Psicológica Muito Baixa', desc: 'O ambiente é percebido como altamente inseguro pelo time. As pessoas temem errar, se expor ou pedir ajuda. Há risco significativo de silêncio organizacional, baixo engajamento e alta rotatividade. Amy Edmondson aponta que equipes nesse nível operam em modo de "ansiedade" — evitam riscos e escondem problemas, comprometendo gravemente o aprendizado e a inovação.' },
+    { max: 2.74, cls: 'level-2', label: '🔶 Segurança Psicológica Baixa', desc: 'Existe alguma abertura coletiva, mas o medo de julgamento ainda é predominante. O time hesita em expor vulnerabilidades ou discordar abertamente. Segundo Edmondson, equipes neste nível podem entregar resultados a curto prazo, mas sacrificam o aprendizado coletivo e a qualidade das decisões por falta de debate honesto.' },
+    { max: 3.49, cls: 'level-3', label: '🟡 Segurança Psicológica Moderada', desc: 'O time apresenta uma base de confiança, mas ainda há barreiras situacionais. Alguns membros se sentem à vontade para contribuir, outros não. Edmondson alerta que a segurança moderada pode criar um falso senso de harmonia — os problemas existem, mas não são totalmente vocalizados, limitando o potencial coletivo.' },
+    { max: 4.24, cls: 'level-4', label: '🟢 Segurança Psicológica Boa', desc: 'O time opera com abertura consistente. Os membros se sentem seguros para contribuir, questionar e pedir ajuda. De acordo com Edmondson, esse nível favorece o aprendizado contínuo, a inovação incremental e a resolução eficaz de conflitos — patamar ideal para equipes de alta performance.' },
+    { max: 5, cls: 'level-5', label: '🏆 Segurança Psicológica Muito Alta', desc: 'O time possui um ambiente exemplar de confiança interpessoal. As pessoas se sentem genuinamente valorizadas, livres para arriscar e transparentes sobre dificuldades. No modelo de Edmondson, esse é o nível que sustenta equipes de aprendizado de alta performance — capazes de inovar e crescer mesmo diante de falhas e incertezas.' }
+  ];
+
+  async function loadResults() {
+    try {
+      const res = await fetch(SCRIPT_URL + '?action=results');
+      const data = await res.json();
+
+      document.getElementById('loading').style.display = 'none';
+
+      if (!data || data.count === 0) {
+        document.getElementById('no-data').style.display = 'block';
+        return;
+      }
+
+      renderDashboard(data);
+    } catch (err) {
+      document.getElementById('loading').style.display = 'none';
+      document.getElementById('error-screen').style.display = 'block';
+    }
+  }
+
+  function renderDashboard(data) {
+    const avg = data.overallAvg;
+    const level = levels.find(l => avg <= l.max);
+    const pct = ((avg - 1) / 4) * 100;
+
+    const barsHTML = data.questionAvgs.map((score, i) => {
+      const fillPct = ((score - 1) / 4) * 100;
+      const color = barColors[Math.round(score) - 1] || '#4a9eff';
+      return `
+        <div class="bar-row">
+          <div class="bar-label">${questions[i]}</div>
+          <div class="bar-track">
+            <div class="bar-fill" style="width:0%;background:${color}" data-target="${fillPct}"></div>
+          </div>
+          <div class="bar-score" style="color:${color}">${score.toFixed(2)}</div>
+        </div>`;
+    }).join('');
+
+    const distHTML = data.questionDists ? data.questionDists.map((dist, i) => {
+      const total = dist.reduce((a, b) => a + b, 0) || 1;
+      const barsInner = dist.map((count, vi) => {
+        const pct = (count / total) * 100;
+        const color = barColors[vi];
+        return `
+          <div class="dist-bar-wrap">
+            <div class="dist-pct" style="color:${color}">${Math.round(pct)}%</div>
+            <div class="dist-bar" style="background:${color};height:${Math.max(pct * 0.44, 2)}px"></div>
+            <div class="dist-bar-label">${vi + 1}</div>
+          </div>`;
+      }).join('');
+      return `
+        <div class="dist-row">
+          <div class="dist-label">${questions[i]}</div>
+          <div class="dist-bars">${barsInner}</div>
+        </div>`;
+    }).join('') : '';
+
+    document.getElementById('dashboard').innerHTML = `
+      <div class="result-hero ${level.cls}">
+        <div class="eyebrow">Diagnóstico coletivo do time</div>
+        <div class="score-big">${avg.toFixed(2)}</div>
+        <div class="score-max">de 5,00 pontos</div>
+        <div class="respondents-badge">${data.count} ${data.count === 1 ? 'respondente' : 'respondentes'}</div>
+        <div class="result-label">${level.label}</div>
+        <div class="result-desc">${level.desc}</div>
+      </div>
+
+      <div class="section-block">
+        <div class="section-title">Média por dimensão</div>
+        ${barsHTML}
+      </div>
+
+      ${distHTML ? `
+      <div class="section-block">
+        <div class="section-title">Distribuição das respostas por questão</div>
+        ${distHTML}
+      </div>` : ''}
+
+      <div class="section-block">
+        <div class="section-title">Posição no espectro de Edmondson</div>
+        <div class="meter-track">
+          <div class="meter-needle" id="needle" style="left:0%"></div>
+        </div>
+        <div class="meter-labels">
+          <span>Muito baixa</span><span>Baixa</span><span>Moderada</span><span>Boa</span><span>Muito alta</span>
+        </div>
+      </div>
+
+      <div class="section-block">
+        <div class="section-title">Sobre o instrumento</div>
+        <div class="edmondson-note">
+          Este diagnóstico utiliza o <strong>Team Psychological Safety Survey</strong> desenvolvido por
+          <strong>Amy Edmondson</strong> em 1999, publicado no artigo
+          <em>"Psychological Safety and Learning Behavior in Work Teams"</em>
+          (Administrative Science Quarterly). O instrumento foi referenciado pelo
+          <strong>Projeto Aristóteles do Google</strong> como o fator mais determinante
+          para o sucesso de equipes de alta performance.
+        </div>
+      </div>
+
+      <div class="action-row">
+        <a href="index.html" class="btn-primary">Responder pesquisa →</a>
+        <button class="btn-outline" onclick="location.reload()">↻ Atualizar</button>
+      </div>
+    `;
+
+    document.getElementById('dashboard').style.display = 'block';
+
+    setTimeout(() => {
+      document.querySelectorAll('.bar-fill').forEach(bar => {
+        bar.style.width = bar.dataset.target + '%';
+      });
+      const needle = document.getElementById('needle');
+      if (needle) needle.style.left = pct + '%';
+    }, 80);
+  }
+
+  loadResults();
+</script>
+</body>
+</html>

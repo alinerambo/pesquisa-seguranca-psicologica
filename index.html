@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pesquisa de Segurança Psicológica — MBA Gestão de Equipes de Alto Desempenho 2025</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #f0f4f8;
+      color: #1a1a2e;
+      padding: 32px 16px 64px;
+      min-height: 100vh;
+    }
+    .container { max-width: 680px; margin: 0 auto; }
+
+    .header { text-align: center; margin-bottom: 36px; }
+    .header .tag {
+      display: inline-block;
+      background: #e8f0fe;
+      color: #4a9eff;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 4px 12px;
+      border-radius: 99px;
+      margin-bottom: 14px;
+    }
+    .header h1 { font-size: 1.5rem; font-weight: 800; color: #1a1a2e; margin-bottom: 6px; line-height: 1.3; }
+    .header .subtitle { font-size: 1rem; font-weight: 600; color: #4a9eff; margin-bottom: 10px; }
+    .header p { font-size: 0.88rem; color: #555; line-height: 1.7; max-width: 500px; margin: 0 auto; }
+    .header p strong { color: #1a1a2e; }
+
+    .scale-legend-global {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: white;
+      border: 1px solid #e2e6ea;
+      border-radius: 10px;
+      padding: 10px 16px;
+      margin-bottom: 24px;
+      font-size: 0.78rem;
+      color: #555;
+    }
+    .pills { display: flex; gap: 6px; }
+    .pill {
+      width: 26px; height: 26px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700; font-size: 0.78rem; color: white;
+    }
+
+    .question-card {
+      background: white;
+      border: 2px solid #e2e6ea;
+      border-radius: 14px;
+      padding: 22px 22px 18px;
+      margin-bottom: 14px;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .question-card.answered { border-color: #4a9eff55; box-shadow: 0 2px 10px #4a9eff15; }
+    .question-card.error { border-color: #ff4d4d; box-shadow: 0 2px 10px #ff4d4d18; }
+    .question-num { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: #4a9eff; margin-bottom: 6px; }
+    .question-text { font-size: 0.97rem; font-weight: 500; line-height: 1.55; color: #1a1a2e; margin-bottom: 18px; }
+
+    .options { display: flex; gap: 8px; }
+    .option-label { flex: 1; cursor: pointer; }
+    .option-label input { display: none; }
+    .option-btn {
+      display: flex; flex-direction: column; align-items: center; gap: 5px;
+      padding: 10px 4px; border-radius: 10px; border: 2px solid #dde1e7;
+      background: #fafbfc; transition: all 0.15s; cursor: pointer; width: 100%;
+    }
+    .option-num { font-size: 1.1rem; font-weight: 700; color: #aaa; transition: color 0.15s; }
+    .option-dot { width: 7px; height: 7px; border-radius: 50%; background: #dde1e7; transition: background 0.15s; }
+    .option-label input:checked + .option-btn { border-color: #4a9eff; background: #eef5ff; }
+    .option-label input:checked + .option-btn .option-num { color: #4a9eff; }
+    .option-label input:checked + .option-btn .option-dot { background: #4a9eff; }
+    .option-label:hover .option-btn { border-color: #4a9eff88; background: #f5f9ff; }
+    .scale-labels { display: flex; justify-content: space-between; font-size: 0.68rem; color: #aaa; margin-top: 10px; }
+    .error-msg { display: none; color: #cc0000; font-size: 0.8rem; margin-top: 8px; font-weight: 500; }
+    .question-card.error .error-msg { display: block; }
+
+    .submit-btn {
+      display: block; width: 100%; padding: 15px;
+      background: #4a9eff; color: white; border: none; border-radius: 12px;
+      font-size: 1rem; font-weight: 700; cursor: pointer; margin-top: 28px;
+      transition: background 0.2s, transform 0.1s; letter-spacing: 0.02em;
+    }
+    .submit-btn:hover { background: #2e86ef; }
+    .submit-btn:disabled { background: #aaa; cursor: not-allowed; }
+
+    /* Success screen */
+    #success-screen {
+      display: none;
+      text-align: center;
+      padding: 48px 24px;
+      background: white;
+      border-radius: 16px;
+      border: 2px solid #51c261;
+      animation: fadeIn 0.4s ease;
+    }
+    .success-icon { font-size: 3.5rem; margin-bottom: 16px; }
+    #success-screen h2 { font-size: 1.4rem; font-weight: 800; color: #226622; margin-bottom: 10px; }
+    #success-screen p { font-size: 0.9rem; color: #555; line-height: 1.7; margin-bottom: 24px; }
+    .results-link {
+      display: inline-block;
+      padding: 12px 28px;
+      background: #4a9eff;
+      color: white;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 0.9rem;
+      text-decoration: none;
+      transition: background 0.2s;
+    }
+    .results-link:hover { background: #2e86ef; }
+
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+
+    .footer { text-align: center; margin-top: 40px; font-size: 0.75rem; color: #bbb; line-height: 1.7; }
+
+    @media (max-width: 500px) {
+      .header h1 { font-size: 1.2rem; }
+      .option-btn { padding: 8px 2px; }
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <div id="form-section">
+    <div class="header">
+      <div class="tag">Instrumento validado · Amy Edmondson</div>
+      <h1>Pesquisa de Segurança Psicológica</h1>
+      <div class="subtitle">MBA | Gestão de Equipes de Alto Desempenho 2025</div>
+      <p>Avalie cada afirmação de <strong>1 (Discordo totalmente)</strong> a <strong>5 (Concordo totalmente)</strong>.
+      Suas respostas são <strong>anônimas</strong> e contribuirão para o diagnóstico coletivo do time.</p>
+    </div>
+
+    <div class="scale-legend-global">
+      <span>Escala de avaliação:</span>
+      <div class="pills">
+        <div class="pill" style="background:#ff6b6b">1</div>
+        <div class="pill" style="background:#ffa94d">2</div>
+        <div class="pill" style="background:#f5c518">3</div>
+        <div class="pill" style="background:#51c261">4</div>
+        <div class="pill" style="background:#4a9eff">5</div>
+      </div>
+    </div>
+
+    <form id="survey-form" novalidate>
+
+      <div class="question-card" id="card-1">
+        <div class="question-num">Questão 1 de 7</div>
+        <div class="question-text">Se você cometer um erro nessa equipe, ele não será usado contra você.</div>
+        <div class="options" id="opts-1"></div>
+        <div class="scale-labels"><span>Discordo totalmente</span><span>Concordo totalmente</span></div>
+        <div class="error-msg">Por favor, selecione uma opção.</div>
+      </div>
+
+      <div class="question-card" id="card-2">
+        <div class="question-num">Questão 2 de 7</div>
+        <div class="question-text">Membros dessa equipe conseguem trazer à tona problemas e questões difíceis.</div>
+        <div class="options" id="opts-2"></div>
+        <div class="scale-labels"><span>Discordo totalmente</span><span>Concordo totalmente</span></div>
+        <div class="error-msg">Por favor, selecione uma opção.</div>
+      </div>
+
+      <div class="question-card" id="card-3">
+        <div class="question-num">Questão 3 de 7</div>
+        <div class="question-text">As pessoas nessa equipe aceitam as outras por serem diferentes.</div>
+        <div class="options" id="opts-3"></div>
+        <div class="scale-labels"><span>Discordo totalmente</span><span>Concordo totalmente</span></div>
+        <div class="error-msg">Por favor, selecione uma opção.</div>
+      </div>
+
+      <div class="question-card" id="card-4">
+        <div class="question-num">Questão 4 de 7</div>
+        <div class="question-text">É seguro correr riscos nessa equipe.</div>
+        <div class="options" id="opts-4"></div>
+        <div class="scale-labels"><span>Discordo totalmente</span><span>Concordo totalmente</span></div>
+        <div class="error-msg">Por favor, selecione uma opção.</div>
+      </div>
+
+      <div class="question-card" id="card-5">
+        <div class="question-num">Questão 5 de 7</div>
+        <div class="question-text">Não é difícil pedir ajuda a outros membros dessa equipe.</div>
+        <div class="options" id="opts-5"></div>
+        <div class="scale-labels"><span>Discordo totalmente</span><span>Concordo totalmente</span></div>
+        <div class="error-msg">Por favor, selecione uma opção.</div>
+      </div>
+
+      <div class="question-card" id="card-6">
+        <div class="question-num">Questão 6 de 7</div>
+        <div class="question-text">Ninguém nessa equipe agiria deliberadamente de uma maneira que minasse meus esforços.</div>
+        <div class="options" id="opts-6"></div>
+        <div class="scale-labels"><span>Discordo totalmente</span><span>Concordo totalmente</span></div>
+        <div class="error-msg">Por favor, selecione uma opção.</div>
+      </div>
+
+      <div class="question-card" id="card-7">
+        <div class="question-num">Questão 7 de 7</div>
+        <div class="question-text">Ao trabalhar com membros dessa equipe, minhas habilidades e meus talentos únicos são valorizados e utilizados.</div>
+        <div class="options" id="opts-7"></div>
+        <div class="scale-labels"><span>Discordo totalmente</span><span>Concordo totalmente</span></div>
+        <div class="error-msg">Por favor, selecione uma opção.</div>
+      </div>
+
+      <button type="submit" class="submit-btn" id="submit-btn">Enviar respostas →</button>
+    </form>
+  </div>
+
+  <div id="success-screen">
+    <div class="success-icon">✅</div>
+    <h2>Resposta registrada!</h2>
+    <p>Obrigado por participar. Sua resposta foi salva anonimamente<br>e já está sendo considerada no diagnóstico do time.</p>
+    <a href="resultados.html" class="results-link">Ver resultado do time →</a>
+  </div>
+
+  <div class="footer">
+    Baseado no instrumento de Amy Edmondson (1999) — <em>Psychological Safety and Learning Behavior in Work Teams</em>
+  </div>
+</div>
+
+<script>
+  // ⚠️ COLE AQUI A URL DO SEU GOOGLE APPS SCRIPT APÓS A CONFIGURAÇÃO
+  const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxpJFy29Kkm8OdQ4LhEunKxhcLwujTFI0kVC53q19H9KbY3qx89sxrBdjNkDn9p3qCzTQ/exec';
+
+  const barColors = ['#ff6b6b', '#ffa94d', '#f5c518', '#51c261', '#4a9eff'];
+
+  for (let q = 1; q <= 7; q++) {
+    const container = document.getElementById('opts-' + q);
+    for (let v = 1; v <= 5; v++) {
+      const label = document.createElement('label');
+      label.className = 'option-label';
+      label.innerHTML = `
+        <input type="radio" name="q${q}" value="${v}">
+        <div class="option-btn">
+          <span class="option-num">${v}</span>
+          <div class="option-dot"></div>
+        </div>`;
+      container.appendChild(label);
+      label.querySelector('input').addEventListener('change', () => {
+        document.getElementById('card-' + q).classList.add('answered');
+        document.getElementById('card-' + q).classList.remove('error');
+      });
+    }
+  }
+
+  document.getElementById('survey-form').addEventListener('submit', async function (e) {
+    e.preventDefault();
+    const scores = [];
+    let firstError = null;
+
+    for (let q = 1; q <= 7; q++) {
+      const sel = document.querySelector(`input[name="q${q}"]:checked`);
+      const card = document.getElementById('card-' + q);
+      if (!sel) {
+        card.classList.add('error');
+        if (!firstError) firstError = card;
+      } else {
+        scores.push(parseInt(sel.value));
+      }
+    }
+
+    if (firstError) {
+      firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return;
+    }
+
+    const btn = document.getElementById('submit-btn');
+    btn.disabled = true;
+    btn.textContent = 'Enviando...';
+
+    const payload = { q1: scores[0], q2: scores[1], q3: scores[2], q4: scores[3], q5: scores[4], q6: scores[5], q7: scores[6] };
+
+    try {
+      await fetch(SCRIPT_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      document.getElementById('form-section').style.display = 'none';
+      document.getElementById('success-screen').style.display = 'block';
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } catch (err) {
+      btn.disabled = false;
+      btn.textContent = 'Enviar respostas →';
+      alert('Erro ao enviar. Verifique sua conexão e tente novamente.');
+    }
+  });
+</script>
+</body>
+</html>
